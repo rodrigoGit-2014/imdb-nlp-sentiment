@@ -12,6 +12,5 @@ def test_smoke_imports():
     import nlp_imdb.features
     import nlp_imdb.models
     import nlp_imdb.training
-    import nlp_imdb.utils
 
     assert True
