@@ -1,6 +1,6 @@
 # src/nlp_imdb/training/trainer.py
 
-from typing import Any, Iterable, Tuple
+from typing import Any, Iterable
 
 import numpy as np
 
