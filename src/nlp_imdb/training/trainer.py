@@ -2,7 +2,6 @@
 
 from typing import Any, Iterable
 
-import numpy as np
 
 
 class Trainer:
