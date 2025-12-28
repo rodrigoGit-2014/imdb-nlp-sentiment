@@ -4,9 +4,7 @@ import sys
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="NLP IMDb Sentiment Analysis CLI"
-    )
+    parser = argparse.ArgumentParser(description="NLP IMDb Sentiment Analysis CLI")
 
     parser.add_argument(
         "--config",

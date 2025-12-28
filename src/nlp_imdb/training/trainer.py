@@ -3,7 +3,6 @@
 from typing import Any, Iterable
 
 
-
 class Trainer:
     """
     Generic trainer wrapper.

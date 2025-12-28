@@ -10,7 +10,9 @@ class WhitespaceTokenizeConfig:
     min_token_len: int = 1
 
 
-def whitespace_tokenize(text: str, cfg: WhitespaceTokenizeConfig = WhitespaceTokenizeConfig()) -> List[str]:
+def whitespace_tokenize(
+    text: str, cfg: WhitespaceTokenizeConfig = WhitespaceTokenizeConfig()
+) -> List[str]:
     """
     Simple baseline tokenization (whitespace split).
     This is NOT used for BERT tokenization (transformers handles that).
