@@ -1,0 +1,15 @@
+# configs/model_a_tfidf.yaml
+model:
+  name: "model_a_tfidf"
+  type: "classic"
+
+representation:
+  kind: "tfidf"
+  max_features: 30000
+  ngram_range: [1, 2]
+  min_df: 2
+
+classifier:
+  kind: "logistic_regression"
+  C: 1.0
+  max_iter: 2000

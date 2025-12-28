@@ -1,0 +1,20 @@
+# configs/model_b_static_emb.yaml
+model:
+  name: "model_b_static_emb"
+  type: "sequential"
+
+representation:
+  kind: "static_embeddings"
+  source: "glove"
+  embedding_dim: 100
+  max_sequence_length: 256
+
+sequence_model:
+  kind: "lstm"
+  hidden_size: 128
+  num_layers: 1
+  dropout: 0.2
+
+classifier_head:
+  hidden_units: 64
+  dropout: 0.2

@@ -1,0 +1,12 @@
+# configs/model_c_bert.yaml
+model:
+  name: "model_c_bert"
+  type: "contextual"
+
+representation:
+  kind: "bert"
+  pretrained_model_name: "distilbert-base-uncased"
+
+finetuning:
+  max_length: 256
+  freeze_base: false

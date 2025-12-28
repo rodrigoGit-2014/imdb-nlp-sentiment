@@ -1,0 +1,16 @@
+# configs/dataset.yaml
+dataset:
+  name: "imdb"
+  source: "huggingface"
+  text_field: "text"
+  label_field: "label"
+
+splits:
+  validation_ratio: 0.10
+  stratify: true
+  seed: 42
+
+preprocessing:
+  lowercase: true
+  strip_html: true
+  normalize_whitespace: true

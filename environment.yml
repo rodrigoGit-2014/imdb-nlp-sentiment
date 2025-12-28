@@ -1,0 +1,45 @@
+name: nlp-imdb-sentiment
+
+channels:
+  - conda-forge
+  - pytorch
+
+dependencies:
+  - python=3.11
+  - pip
+
+  # Core scientific stack
+  - numpy
+  - pandas
+  - scipy
+
+  # NLP / ML (modelo clásico)
+  - scikit-learn
+
+  # Visualization / notebooks
+  - matplotlib
+  - seaborn
+  - jupyterlab
+  - ipykernel
+
+  # Utilities
+  - pyyaml
+  - tqdm
+  - rich
+
+  # Testing / quality
+  - pytest
+
+  # Deep learning
+  - pytorch
+  - torchvision
+  - torchaudio
+
+  # Pip-only packages
+  - pip:
+      - datasets
+      - transformers
+      - evaluate
+      - accelerate
+      - sentencepiece
+      - pre-commit

@@ -1,0 +1,17 @@
+# configs/base.yaml
+project:
+  name: "nlp-imdb-sentiment"
+  seed: 42
+  output_dir: "outputs"
+
+training:
+  batch_size: 16
+  num_epochs: 5
+  learning_rate: 2.0e-5
+
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1
