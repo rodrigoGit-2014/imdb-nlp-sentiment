@@ -5,23 +5,28 @@
 ## Fuente
 - Dataset: IMDb Movie Reviews
 - Proveedor: Hugging Face (`imdb`)
+- Loader del proyecto: `nlp_imdb.data.dataset_loader.load_imdb_hf`
 
 ## Tarea
 Clasificación de sentimiento binaria (positivo / negativo).
 
-## Esquema del Dataset Interno
+## Esquema del Dataset Interno (Contract)
 
-Cada registro del dataset **debe cumplir** con el siguiente formato:
+Cada registro del dataset **debe cumplir** con el siguiente formato lógico:
 
 | Campo  | Tipo | Descripción |
 |------|------|-------------|
-| id | str | Identificador único dentro del proyecto |
+| id | str | Identificador único dentro del proyecto (si se materializa a disco) |
 | text | str | Texto de la reseña |
 | label | int | 0 = negativo, 1 = positivo |
 | split | str | train / validation / test |
 | source | str | Origen del dataset (hf_imdb) |
 
-### Ejemplo
+> Nota: En la carga directa desde Hugging Face (DatasetDict), el contract se garantiza por:
+> - splits presentes: `train`, `validation`, `test`
+> - columnas presentes: `text`, `label`
+
+### Ejemplo (si se exporta a formato tabular/JSON)
 
 ```json
 {
