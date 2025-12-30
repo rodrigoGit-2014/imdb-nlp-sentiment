@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Tuple
 
 import joblib
 from sklearn.linear_model import LogisticRegression
