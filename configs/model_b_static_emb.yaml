@@ -1,20 +1,43 @@
 # configs/model_b_static_emb.yaml
+
+dataset:
+  name: "imdb"
+  source: "huggingface"
+  text_field: "text"
+  label_field: "label"
+
+paths:
+  processed_dir: "data/processed/imdb"               # <- donde quedó tu DatasetDict preprocesado (arrow)
+  artifacts_dir: "data/processed/artifacts/model_b" # <- salida de entreno
+
+tokenization:
+  max_vocab: 40000
+  min_freq: 2
+  max_length: 256
+  pad_token: "<PAD>"
+  unk_token: "<UNK>"
+
+embeddings:
+  provider: "torchtext_glove"
+  name: "6B"
+  dim: 100
+  freeze: true
+  cache_dir: "data/raw/embeddings"
+
 model:
-  name: "model_b_static_emb"
-  type: "sequential"
-
-representation:
-  kind: "static_embeddings"
-  source: "glove"
   embedding_dim: 100
-  max_sequence_length: 256
-
-sequence_model:
-  kind: "lstm"
+  freeze_embeddings: true
+  rnn_type: gru
   hidden_size: 128
   num_layers: 1
+  bidirectional: true
   dropout: 0.2
+  classifier_dropout: 0.2
+  num_layers: 1
 
-classifier_head:
-  hidden_units: 64
-  dropout: 0.2
+training:
+  batch_size: 64
+  epochs: 3
+  lr: 0.001
+  weight_decay: 0.0
+  device: "cpu"

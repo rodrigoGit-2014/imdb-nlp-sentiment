@@ -27,7 +27,9 @@ def _ensure_columns(ds: Dataset, text_col: str, label_col: str) -> Dataset:
     if text_col not in cols:
         raise ValueError(f"Missing text column '{text_col}'. Available: {sorted(cols)}")
     if label_col not in cols:
-        raise ValueError(f"Missing label column '{label_col}'. Available: {sorted(cols)}")
+        raise ValueError(
+            f"Missing label column '{label_col}'. Available: {sorted(cols)}"
+        )
     return ds
 
 
@@ -51,7 +53,9 @@ def load_imdb_hf(
     dsd: DatasetDict = load_dataset("imdb", cache_dir=str(cache_dir))
 
     if "train" not in dsd or "test" not in dsd:
-        raise ValueError(f"Expected splits train/test in HF imdb. Got: {list(dsd.keys())}")
+        raise ValueError(
+            f"Expected splits train/test in HF imdb. Got: {list(dsd.keys())}"
+        )
 
     train_full = _ensure_columns(dsd["train"], text_col, label_col)
     test = _ensure_columns(dsd["test"], text_col, label_col)
@@ -61,7 +65,6 @@ def load_imdb_hf(
         split_kwargs["stratify_by_column"] = label_col
 
     split = train_full.train_test_split(**split_kwargs)
-
     train = split["train"]
     validation = split["test"]
 
@@ -71,7 +74,7 @@ def load_imdb_hf(
 
 def load_dataset_from_config(cfg: dict[str, Any]) -> DatasetContract:
     """
-    Lee config con la estructura actual de configs/dataset.yaml:
+    Lee config con la estructura de configs/dataset.yaml (tu archivo):
 
     dataset:
       name: "imdb"
@@ -84,8 +87,8 @@ def load_dataset_from_config(cfg: dict[str, Any]) -> DatasetContract:
       stratify: true
       seed: 42
     """
-    ds_cfg = cfg.get("dataset", {})
-    splits_cfg = cfg.get("splits", {})
+    ds_cfg = cfg.get("dataset", {}) or {}
+    splits_cfg = cfg.get("splits", {}) or {}
 
     name = ds_cfg.get("name", "imdb")
     source = ds_cfg.get("source", "huggingface")
@@ -95,13 +98,14 @@ def load_dataset_from_config(cfg: dict[str, Any]) -> DatasetContract:
     if name != "imdb":
         raise ValueError(f"Unsupported dataset name '{name}'. Only 'imdb' for now.")
     if source != "huggingface":
-        raise ValueError(f"Unsupported dataset source '{source}'. Only 'huggingface' for now.")
+        raise ValueError(
+            f"Unsupported dataset source '{source}'. Only 'huggingface' for now."
+        )
 
     validation_ratio = float(splits_cfg.get("validation_ratio", 0.10))
     seed = int(splits_cfg.get("seed", 42))
     stratify = bool(splits_cfg.get("stratify", True))
 
-    # cache_dir fijo por convención del proyecto
     cache_dir = "data/raw"
 
     return load_imdb_hf(

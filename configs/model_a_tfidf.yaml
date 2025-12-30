@@ -1,15 +1,31 @@
 # configs/model_a_tfidf.yaml
+dataset:
+  name: "imdb"
+  source: "huggingface"
+  text_field: "text"
+  label_field: "label"
+
+splits:
+  validation_ratio: 0.10
+  stratify: true
+  seed: 42
+
+preprocessing:
+  lowercase: true
+  strip_html: true
+  normalize_whitespace: true
+
 model:
-  name: "model_a_tfidf"
-  type: "classic"
+  type: "tfidf_logreg"
+  tfidf:
+    max_features: 50000
+    ngram_range: [1, 2]
+    min_df: 2
+    max_df: 0.95
+  classifier:
+    C: 2.0
+    max_iter: 2000
+    class_weight: "balanced"
 
-representation:
-  kind: "tfidf"
-  max_features: 30000
-  ngram_range: [1, 2]
-  min_df: 2
-
-classifier:
-  kind: "logistic_regression"
-  C: 1.0
-  max_iter: 2000
+artifacts:
+  dir: "artifacts/model_a"
