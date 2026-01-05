@@ -211,12 +211,6 @@ def train_model_b_from_config(cfg: dict[str, Any]) -> TrainResult:
             self.fc = nn.Linear(out_dim, 1)
 
         def forward(self, x: torch.Tensor) -> torch.Tensor:
-            # x = self.emb(x)  # (B, T, E)
-            # _, h = self.rnn(x)  # h: (num_layers * num_dirs, B, H)
-            # h_last = h[-1]  # último bloque
-            # h_last = self.dropout(h_last)
-            # logits = self.fc(h_last).squeeze(-1)
-            # return logits
             x = self.emb(x)  # (B, T, E)
             _, h = self.rnn(x)  # h: (num_layers * num_dirs, B, H)
             if bidirectional:
@@ -286,7 +280,6 @@ def train_model_c_from_config(cfg: dict[str, Any]) -> TrainResult:
     """
     try:
         import numpy as np
-        import torch
         from datasets import load_from_disk
         from transformers import (
             AutoTokenizer,
