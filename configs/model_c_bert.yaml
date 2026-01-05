@@ -1,12 +1,27 @@
-# configs/model_c_bert.yaml
+dataset:
+  name: imdb
+  text_field: text
+  label_field: label
+
+paths:
+  processed_dir: data/processed/imdb_cleaned
+  artifacts_dir: data/processed/artifacts/model_c
+
+splits:
+  seed: 42
+
 model:
-  name: "model_c_bert"
-  type: "contextual"
-
-representation:
-  kind: "bert"
-  pretrained_model_name: "distilbert-base-uncased"
-
-finetuning:
+  pretrained_name: distilbert-base-uncased
   max_length: 256
-  freeze_base: false
+
+training:
+  batch_size: 16
+  eval_batch_size: 32
+  epochs: 2
+  lr: 2e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  device: auto   # si tu trainer ya resuelve auto, si no, usa cpu/mps/cuda
+  fp16: false
+  save_strategy: epoch
+  logging_steps: 50

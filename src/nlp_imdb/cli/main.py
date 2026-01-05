@@ -15,6 +15,7 @@ from nlp_imdb.preprocessing.tokenization import clean_texts
 from nlp_imdb.training.trainer import (
     train_model_a_from_config,
     train_model_b_from_config,
+    train_model_c_from_config,
 )
 
 
@@ -113,7 +114,7 @@ def main() -> None:
         "--stage",
         type=str,
         required=True,
-        choices=["dataset", "preprocess", "train_a", "train_b"],
+        choices=["dataset", "preprocess", "train_a", "train_b", "train_c"],
         help="Pipeline stage to run",
     )
     args = parser.parse_args()
@@ -131,6 +132,12 @@ def main() -> None:
         _run_train_a(cfg)
     elif args.stage == "train_b":
         _run_train_b(cfg)
+    elif args.stage == "train_c":
+        res = train_model_c_from_config(cfg)
+        print("\n✅ Modelo C entrenado y evaluado.")
+        print(f"Validation metrics: {res.validation}")
+        print(f"Test metrics:       {res.test}")
+
     else:
         raise ValueError(f"Unknown stage: {args.stage}")
 

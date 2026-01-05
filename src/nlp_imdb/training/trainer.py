@@ -278,3 +278,137 @@ def train_model_b_from_config(cfg: dict[str, Any]) -> TrainResult:
     )
 
     return TrainResult(validation=val_metrics, test=test_metrics)
+
+
+def train_model_c_from_config(cfg: dict[str, Any]) -> TrainResult:
+    """
+    Modelo C: Fine-tuning de Transformer (BERT/DistilBERT) con HuggingFace Transformers.
+    """
+    try:
+        import numpy as np
+        import torch
+        from datasets import load_from_disk
+        from transformers import (
+            AutoTokenizer,
+            AutoModelForSequenceClassification,
+            DataCollatorWithPadding,
+            Trainer,
+            TrainingArguments,
+        )
+    except Exception as e:  # pragma: no cover
+        raise RuntimeError(
+            "Para Modelo C necesitas instalar: transformers, datasets, accelerate y torch."
+        ) from e
+
+    processed_dir = cfg["paths"]["processed_dir"]
+    artifacts_dir = _ensure_dir(cfg["paths"]["artifacts_dir"])
+
+    dsd = load_from_disk(processed_dir)
+
+    text_col = cfg.get("dataset", {}).get("text_field", "text")
+    label_col = cfg.get("dataset", {}).get("label_field", "label")
+
+    model_cfg = cfg.get("model", {})
+    pretrained_name = str(model_cfg.get("pretrained_name", "distilbert-base-uncased"))
+    max_length = int(model_cfg.get("max_length", 256))
+
+    train_cfg = cfg.get("training", {})
+    batch_size = int(train_cfg.get("batch_size", 16))
+    eval_batch_size = int(train_cfg.get("eval_batch_size", 32))
+    epochs = int(train_cfg.get("epochs", 2))
+    lr = float(train_cfg.get("lr", 2e-5))
+    weight_decay = float(train_cfg.get("weight_decay", 0.01))
+    warmup_ratio = float(train_cfg.get("warmup_ratio", 0.06))
+    logging_steps = int(train_cfg.get("logging_steps", 50))
+
+    # Tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(pretrained_name, use_fast=True)
+
+    def _tokenize(batch: dict[str, Any]) -> dict[str, Any]:
+        return tokenizer(
+            batch[text_col],
+            truncation=True,
+            max_length=max_length,
+        )
+
+    # Tokeniza splits
+    tokenized = dsd.map(_tokenize, batched=True, remove_columns=[text_col])
+
+    # Renombrar label -> labels para Trainer
+    tokenized = tokenized.rename_column(label_col, "labels")
+
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+    # Modelo
+    model = AutoModelForSequenceClassification.from_pretrained(
+        pretrained_name, num_labels=2
+    )
+
+    # Métricas
+    def compute_metrics(eval_pred):
+        logits, labels = eval_pred
+        preds = np.argmax(logits, axis=1)
+        m = compute_classification_metrics(labels, preds)
+        return m.as_dict() if hasattr(m, "as_dict") else dict(m)
+
+    args = TrainingArguments(
+        output_dir=str(artifacts_dir / "hf_runs"),
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=eval_batch_size,
+        num_train_epochs=epochs,
+        learning_rate=lr,
+        weight_decay=weight_decay,
+        warmup_ratio=warmup_ratio,
+        eval_strategy="epoch",
+        save_strategy=str(train_cfg.get("save_strategy", "epoch")),
+        logging_steps=logging_steps,
+        load_best_model_at_end=True,
+        metric_for_best_model="f1",
+        greater_is_better=True,
+        report_to="none",
+    )
+
+    trainer = Trainer(
+        model=model,
+        args=args,
+        train_dataset=tokenized["train"],
+        eval_dataset=tokenized["validation"],
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
+
+    trainer.train()
+
+    # Eval final
+    val_out = trainer.predict(tokenized["validation"])
+    test_out = trainer.predict(tokenized["test"])
+
+    val_metrics = val_out.metrics
+    test_metrics = test_out.metrics
+
+    # Guardar modelo y tokenizer
+    model_dir = artifacts_dir / "model"
+    trainer.save_model(str(model_dir))
+    tokenizer.save_pretrained(str(model_dir))
+
+    # Guardar métricas simplificadas en el mismo formato que A y B
+    def _pick(m: dict[str, Any]) -> dict[str, float]:
+        # Trainer entrega keys como eval_f1, test_f1, etc.
+        out = {}
+        for k in ["accuracy", "precision", "recall", "f1"]:
+            for prefix in ["eval_", "test_"]:
+                kk = prefix + k
+                if kk in m:
+                    out[k] = float(m[kk])
+        return out
+
+    (artifacts_dir / "metrics.validation.json").write_text(
+        json.dumps(_pick(val_metrics), indent=2), encoding="utf-8"
+    )
+    (artifacts_dir / "metrics.test.json").write_text(
+        json.dumps(_pick(test_metrics), indent=2), encoding="utf-8"
+    )
+
+    # return TrainResult(validation=_pick(val_metrics), test=_pick(test_metrics), artifacts_dir=str(artifacts_dir))
+    return TrainResult(validation=_pick(val_metrics), test=_pick(test_metrics))
