@@ -73,20 +73,6 @@ def load_imdb_hf(
 
 
 def load_dataset_from_config(cfg: dict[str, Any]) -> DatasetContract:
-    """
-    Lee config con la estructura de configs/dataset.yaml (tu archivo):
-
-    dataset:
-      name: "imdb"
-      source: "huggingface"
-      text_field: "text"
-      label_field: "label"
-
-    splits:
-      validation_ratio: 0.10
-      stratify: true
-      seed: 42
-    """
     ds_cfg = cfg.get("dataset", {}) or {}
     splits_cfg = cfg.get("splits", {}) or {}
 

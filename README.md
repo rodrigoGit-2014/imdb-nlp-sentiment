@@ -42,14 +42,10 @@ pip install -e .
 
 ```
 ├── configs
-│   ├── base.yaml
-│   ├── dataset.yaml
 │   ├── model_a_tfidf.yaml
 │   ├── model_b_static_emb.yaml
 │   └── model_c_bert.yaml
-├── data
 ├── environment.yml
-├── notebooks
 ├── pyproject.toml
 ├── src
 │   └── nlp_imdb
