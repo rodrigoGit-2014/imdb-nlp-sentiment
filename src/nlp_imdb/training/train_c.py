@@ -78,7 +78,9 @@ def train_model_c_from_config(cfg: dict[str, Any]) -> TrainResult:
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     # 3) model
-    model = AutoModelForSequenceClassification.from_pretrained(pretrained_name, num_labels=2)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        pretrained_name, num_labels=2
+    )
 
     # 4) metrics must be dict[str,float]
     def compute_metrics(eval_pred):
@@ -143,8 +145,15 @@ def train_model_c_from_config(cfg: dict[str, Any]) -> TrainResult:
                 out[k] = float(m[kk])
         return out
 
-    val_metrics = _pick(val_metrics_raw, "test") or _pick(val_metrics_raw, "eval") or _pick(val_metrics_raw, "validation") or {}
-    test_metrics = _pick(test_metrics_raw, "test") or _pick(test_metrics_raw, "eval") or {}
+    val_metrics = (
+        _pick(val_metrics_raw, "test")
+        or _pick(val_metrics_raw, "eval")
+        or _pick(val_metrics_raw, "validation")
+        or {}
+    )
+    test_metrics = (
+        _pick(test_metrics_raw, "test") or _pick(test_metrics_raw, "eval") or {}
+    )
 
     # 7) save model + tokenizer + metrics
     model_dir = artifacts_dir / "model"
@@ -152,7 +161,11 @@ def train_model_c_from_config(cfg: dict[str, Any]) -> TrainResult:
     trainer.save_model(str(model_dir))
     tokenizer.save_pretrained(str(model_dir))
 
-    (artifacts_dir / "metrics.validation.json").write_text(json.dumps(val_metrics, indent=2), encoding="utf-8")
-    (artifacts_dir / "metrics.test.json").write_text(json.dumps(test_metrics, indent=2), encoding="utf-8")
+    (artifacts_dir / "metrics.validation.json").write_text(
+        json.dumps(val_metrics, indent=2), encoding="utf-8"
+    )
+    (artifacts_dir / "metrics.test.json").write_text(
+        json.dumps(test_metrics, indent=2), encoding="utf-8"
+    )
 
     return TrainResult(validation=val_metrics, test=test_metrics)

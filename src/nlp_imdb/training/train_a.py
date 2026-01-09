@@ -57,7 +57,9 @@ def _build_model_config(cfg: dict[str, Any]) -> ModelAConfig:
     )
 
 
-def _train_model(mcfg: ModelAConfig, X_train: list[str], y_train: list[int]) -> ModelATfidf:
+def _train_model(
+    mcfg: ModelAConfig, X_train: list[str], y_train: list[int]
+) -> ModelATfidf:
     """Train Model A and return the trained model object."""
     model = ModelATfidf(mcfg)
     model.fit(X_train, y_train)
@@ -86,8 +88,12 @@ def _save_artifacts(
 ) -> None:
     """Persist model and metrics to disk."""
     model.save(out_dir)
-    (out_dir / "metrics.validation.json").write_text(json.dumps(val_metrics, indent=2), encoding="utf-8")
-    (out_dir / "metrics.test.json").write_text(json.dumps(test_metrics, indent=2), encoding="utf-8")
+    (out_dir / "metrics.validation.json").write_text(
+        json.dumps(val_metrics, indent=2), encoding="utf-8"
+    )
+    (out_dir / "metrics.test.json").write_text(
+        json.dumps(test_metrics, indent=2), encoding="utf-8"
+    )
 
 
 def train_model_a_from_config(cfg: dict[str, Any]) -> TrainResult:
@@ -114,6 +120,8 @@ def train_model_a_from_config(cfg: dict[str, Any]) -> TrainResult:
     # 5) save artifacts
     artifacts_dir = _get_artifacts_dir(cfg)
     out_dir = _ensure_dir(artifacts_dir)
-    _save_artifacts(out_dir, model=model, val_metrics=val_metrics, test_metrics=test_metrics)
+    _save_artifacts(
+        out_dir, model=model, val_metrics=val_metrics, test_metrics=test_metrics
+    )
 
     return TrainResult(validation=val_metrics, test=test_metrics)

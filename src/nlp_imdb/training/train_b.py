@@ -10,8 +10,13 @@ from typing import Any
 
 from nlp_imdb.data.dataset_loader import load_dataset_from_config
 from nlp_imdb.preprocessing.text_cleaning import clean_text
-#from nlp_imdb.preprocessing.tokenization import build_vocab, encode_texts_for_rnn
-from nlp_imdb.preprocessing.tokenization import RnnTokenizationConfig, build_vocab, encode_rnn
+
+# from nlp_imdb.preprocessing.tokenization import build_vocab, encode_texts_for_rnn
+from nlp_imdb.preprocessing.tokenization import (
+    RnnTokenizationConfig,
+    build_vocab,
+    encode_rnn,
+)
 
 from nlp_imdb.training.metrics import compute_classification_metrics
 from nlp_imdb.training.result import TrainResult
@@ -24,7 +29,6 @@ def _ensure_dir(path: str | Path) -> Path:
 
 
 def train_model_b_from_config(cfg: dict[str, Any]) -> TrainResult:
-
 
     # 1) dataset
     contract = load_dataset_from_config(cfg)
@@ -97,9 +101,15 @@ def train_model_b_from_config(cfg: dict[str, Any]) -> TrainResult:
                 torch.tensor(self.y[idx], dtype=torch.long),
             )
 
-    train_loader = DataLoader(_SeqDataset(X_train_ids, y_train), batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(_SeqDataset(X_val_ids, y_val), batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(_SeqDataset(X_test_ids, y_test), batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(
+        _SeqDataset(X_train_ids, y_train), batch_size=batch_size, shuffle=True
+    )
+    val_loader = DataLoader(
+        _SeqDataset(X_val_ids, y_val), batch_size=batch_size, shuffle=False
+    )
+    test_loader = DataLoader(
+        _SeqDataset(X_test_ids, y_test), batch_size=batch_size, shuffle=False
+    )
 
     # 5) model
     class RnnClassifier(nn.Module):
@@ -150,7 +160,9 @@ def train_model_b_from_config(cfg: dict[str, Any]) -> TrainResult:
             opt.step()
             total += float(loss.item())
 
-        print(f"Epoch {epoch}/{epochs} | train_loss={total / max(len(train_loader), 1):.4f}")
+        print(
+            f"Epoch {epoch}/{epochs} | train_loss={total / max(len(train_loader), 1):.4f}"
+        )
 
     # 7) predict
     def _predict(loader):
@@ -175,8 +187,14 @@ def train_model_b_from_config(cfg: dict[str, Any]) -> TrainResult:
     out_dir = _ensure_dir(artifacts_dir)
 
     torch.save(model.state_dict(), out_dir / "model_b.pt")
-    (out_dir / "vocab.json").write_text(json.dumps(vocab, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "metrics.validation.json").write_text(json.dumps(val_metrics, indent=2), encoding="utf-8")
-    (out_dir / "metrics.test.json").write_text(json.dumps(test_metrics, indent=2), encoding="utf-8")
+    (out_dir / "vocab.json").write_text(
+        json.dumps(vocab, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    (out_dir / "metrics.validation.json").write_text(
+        json.dumps(val_metrics, indent=2), encoding="utf-8"
+    )
+    (out_dir / "metrics.test.json").write_text(
+        json.dumps(test_metrics, indent=2), encoding="utf-8"
+    )
 
     return TrainResult(validation=val_metrics, test=test_metrics)
