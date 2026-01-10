@@ -105,18 +105,30 @@ def _run_train_b(cfg: dict[str, Any]) -> None:
     print(f"Test metrics:       {res.test}")
 
 
+def _run_train_c(cfg: dict[str, Any]) -> None:
+    res = train_model_c_from_config(cfg)
+    print("\n✅ Modelo C entrenado y evaluado.")
+    print(f"Validation metrics: {res.validation}")
+    print(f"Test metrics:       {res.test}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NLP IMDb Sentiment Analysis CLI")
+
+    # Archivo de configuración
     parser.add_argument(
-        "--config", type=str, required=True, help="Path to configuration file"
+        "--config",
+        help="Ruta del archivo de configuración (ej: config.yaml)",
+        required=True,
     )
+
+    # Etapa del pipeline
     parser.add_argument(
         "--stage",
-        type=str,
+        help="Qué paso ejecutar: dataset | preprocess | train_a | train_b | train_c",
         required=True,
-        choices=["dataset", "preprocess", "train_a", "train_b", "train_c"],
-        help="Pipeline stage to run",
     )
+
     args = parser.parse_args()
 
     cfg = _read_yaml(args.config)
@@ -133,11 +145,7 @@ def main() -> None:
     elif args.stage == "train_b":
         _run_train_b(cfg)
     elif args.stage == "train_c":
-        res = train_model_c_from_config(cfg)
-        print("\n✅ Modelo C entrenado y evaluado.")
-        print(f"Validation metrics: {res.validation}")
-        print(f"Test metrics:       {res.test}")
-
+        _run_train_c(cfg)
     else:
         raise ValueError(f"Unknown stage: {args.stage}")
 
